@@ -2,8 +2,8 @@
 
 path="$(cd "$(dirname "$0")" && pwd)"
 
-generate_library() {
-	rm -rf "$path/$1/build"
+build_library() {
+	rm -rf "$path/$1"
 	mkdir -p "$path/$1/build"
 	cd "$path/$1/build"
 	cmake "../../.." \
@@ -25,7 +25,5 @@ generate_library() {
 	rm -rf "$path/$1/build"	
 }
 
-generate_library "armeabi-v7a"
-generate_library "arm64-v8a"
-
-# ndk-build NDK_PROJECT_PATH="$path" NDK_APPLICATION_MK="$path/Application.mk" APP_BUILD_SCRIPT="$path/Android.mk" NDK_LIBS_OUT="$path/.externalNativeBuild/libs" NDK_OUT="$path/.externalNativeBuild/obj" -j8
+build_library "armeabi-v7a"
+build_library "arm64-v8a"
