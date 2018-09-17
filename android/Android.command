@@ -6,7 +6,7 @@ generate_make() {
 	rm -rf "$path/$1/build"
 	mkdir -p "$path/$1/build"
 	cd "$path/$1/build"
-	cmake "$path/../CMakeLists.txt" \
+	cmake "../../.." \
 		-DCMAKE_INSTALL_PREFIX="$path/$1" \
 		-DCMAKE_SYSTEM_NAME=Android \
 		-DCMAKE_SYSTEM_VERSION=21 \
