@@ -2,7 +2,7 @@
 
 path="$(cd "$(dirname "$0")" && pwd)"
 
-generate_make() {
+generate_library() {
 	rm -rf "$path/$1/build"
 	mkdir -p "$path/$1/build"
 	cd "$path/$1/build"
@@ -18,9 +18,13 @@ generate_make() {
 		-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
 		-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
 		-DCMAKE_FIND_ROOT_PATH="$path/$1"
+	make -j8
+	make install
+	cd "$path"
+	rm -rf "$path/$1/build"	
 }
 
-generate_make "armeabi-v7a"
-# generate_make "arm64-v8a"
+generate_library "armeabi-v7a"
+generate_library "arm64-v8a"
 
 # ndk-build NDK_PROJECT_PATH="$path" NDK_APPLICATION_MK="$path/Application.mk" APP_BUILD_SCRIPT="$path/Android.mk" NDK_LIBS_OUT="$path/.externalNativeBuild/libs" NDK_OUT="$path/.externalNativeBuild/obj" -j8
