@@ -3,7 +3,8 @@
 path="$(cd "$(dirname "$0")" && pwd)"
 
 generate_make() {
-	cd "$path/$1"
+	mkdir "$path/$1/build"
+	cd "$path/$1/build"
 	cmake "$path/../CMakeLists.txt" \
 		-DCMAKE_INSTALL_PREFIX="$path/$1" \
 		-DCMAKE_SYSTEM_NAME=Android \
