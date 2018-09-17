@@ -3,7 +3,8 @@
 path="$(cd "$(dirname "$0")" && pwd)"
 
 generate_make() {
-	mkdir "$path/$1/build"
+	rm -rf "$path/$1/build"
+	mkdir -p "$path/$1/build"
 	cd "$path/$1/build"
 	cmake "$path/../CMakeLists.txt" \
 		-DCMAKE_INSTALL_PREFIX="$path/$1" \
