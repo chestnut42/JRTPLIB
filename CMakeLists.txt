@@ -50,8 +50,12 @@ jrtplib_support_option("Support memory management mechanism" JRTPLIB_SUPPORT_MEM
 
 jrtplib_include_test(sys/filio.h RTP_HAVE_SYS_FILIO "// Don't have <sys/filio.h>")
 jrtplib_include_test(sys/sockio.h RTP_HAVE_SYS_SOCKIO "// Don't have <sys/sockio.h>")
-jrtplib_include_test(ifaddrs.h RTP_SUPPORT_IFADDRS "// No ifaddrs support")
 jrtplib_include_test(netinet/in.h RTP_SUPPORT_NETINET_IN "// Don't have <netinet/in.h>")
+
+option(JRTPLIB_USE_IFADDRS "Use ifaddrs" ${V})
+if (JRTPLIB_USE_IFADDRS)
+jrtplib_include_test(ifaddrs.h RTP_SUPPORT_IFADDRS "// No ifaddrs support")
+endif (JRTPLIB_USE_IFADDRS)
 
 if (JTHREAD_FOUND)
 	set(V "ON")
