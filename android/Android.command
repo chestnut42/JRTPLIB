@@ -3,11 +3,17 @@
 path="$(cd "$(dirname "$0")" && pwd)"
 
 build_library() {
-	rm -rf "$path/jrtp/$1"
-	mkdir -p "$path/jrtp/$1/build"
-	cd "$path/jrtp/$1/build"
+
+	path_install="$path/jrtp/$1"
+	path_build="$path_install/build"
+
+	path_jthread="$path/jthread/$1"
+
+	rm -rf "$path_install"
+	mkdir -p "$path_build"
+	cd "$path_build"
 	cmake "../../../.." \
-		-DCMAKE_INSTALL_PREFIX="$path/jrtp/$1" \
+		-DCMAKE_INSTALL_PREFIX="$path_install" \
 		-DCMAKE_SYSTEM_NAME=Android \
 		-DCMAKE_SYSTEM_VERSION=21 \
 		-DCMAKE_ANDROID_ARCH_ABI="$1" \
@@ -19,11 +25,11 @@ build_library() {
 		-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
 		-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
 		-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
-		-DCMAKE_FIND_ROOT_PATH="$path/jthread/$1"
+		-DCMAKE_FIND_ROOT_PATH="$path_install;$ANDROID_NDK_HOME;$path_jthread"
 	make -j8
 	make install
 	cd "$path"
-	rm -rf "$path/jrtp/$1/build"	
+	rm -rf "$path_build"	
 }
 
 build_library "armeabi-v7a"
