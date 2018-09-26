@@ -13,7 +13,6 @@ build_library() {
 	mkdir -p "$path_build"
 	cd "$path_build"
 	cmake "../../../.." \
-		-DCMAKE_INSTALL_PREFIX="$path_install" \
 		-DCMAKE_SYSTEM_NAME=Android \
 		-DCMAKE_SYSTEM_VERSION=21 \
 		-DCMAKE_ANDROID_ARCH_ABI="$1" \
@@ -24,12 +23,13 @@ build_library() {
 		-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
 		-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
 		-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
-		-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY \
-		-DCMAKE_FIND_ROOT_PATH="$path_install;$ANDROID_NDK_HOME;$path_jthread"
+		-DCMAKE_FIND_ROOT_PATH="$path_install;$ANDROID_NDK_HOME;$path_jthread" \
+		-DCMAKE_INSTALL_PREFIX="$path_install" \
+		-DCMAKE_BUILD_TYPE=Release
 	make -j8
 	make install
 	cd "$path"
-	rm -rf "$path_build"	
+	# rm -rf "$path_build"	
 }
 
 build_library "armeabi-v7a"
