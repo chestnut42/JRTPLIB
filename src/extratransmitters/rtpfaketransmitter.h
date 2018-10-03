@@ -155,8 +155,8 @@ public:
 	bool ComesFromThisTransmitter(const RTPAddress *addr);
 	size_t GetHeaderOverhead()							{ return RTPFAKETRANS_HEADERSIZE; }
 	
-	int Poll();
-	int WaitForIncomingData(const RTPTime &delay,bool *dataavailable = 0);
+	int Poll(DataAvailability dataAvailability);
+	int WaitForIncomingData(const RTPTime &delay, DataAvailability *dataAvailability);
 	int AbortWait();
 	
 	int SendRTPData(const void *data,size_t len);	

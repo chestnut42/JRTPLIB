@@ -132,14 +132,15 @@ void *RTPPollThread::Thread()
 		rtpsession.sourcesmutex.Unlock();
 		rtpsession.schedmutex.Unlock();
 
-		if ((status = transmitter->WaitForIncomingData(rtcpdelay)) < 0)
+        auto dataAvailability = RTPTransmitter::DataAvailability::notChecked();
+		if ((status = transmitter->WaitForIncomingData(rtcpdelay, &dataAvailability)) < 0)
 		{
 			stopthread = true;
 			rtpsession.OnPollThreadError(status);
 		}
 		else
 		{
-			if ((status = transmitter->Poll()) < 0)
+			if ((status = transmitter->Poll(dataAvailability)) < 0)
 			{
 				stopthread = true;
 				rtpsession.OnPollThreadError(status);

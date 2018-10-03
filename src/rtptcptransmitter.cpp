@@ -277,7 +277,7 @@ bool RTPTCPTransmitter::ComesFromThisTransmitter(const RTPAddress *addr)
 	return v;
 }
 
-int RTPTCPTransmitter::Poll()
+int RTPTCPTransmitter::Poll(DataAvailability dataAvailability)
 {
 	if (!m_init)
 		return ERR_RTP_TCPTRANS_NOTINIT;
@@ -323,7 +323,7 @@ int RTPTCPTransmitter::Poll()
 	return status;
 }
 
-int RTPTCPTransmitter::WaitForIncomingData(const RTPTime &delay,bool *dataavailable)
+int RTPTCPTransmitter::WaitForIncomingData(const RTPTime &delay, DataAvailability *dataAvailability)
 {
 	if (!m_init)
 		return ERR_RTP_TCPTRANS_NOTINIT;
@@ -389,7 +389,7 @@ int RTPTCPTransmitter::WaitForIncomingData(const RTPTime &delay,bool *dataavaila
 	if (m_tmpFlags[idxAbort])
 		m_pAbortDesc->ReadSignallingByte();
 
-	if (dataavailable != 0)
+	if (dataAvailability != nullptr)
 	{
 		bool avail = false;
 
@@ -403,10 +403,14 @@ int RTPTCPTransmitter::WaitForIncomingData(const RTPTime &delay,bool *dataavaila
 			}
 		}
 
-		if (avail)
-			*dataavailable = true;
-		else
-			*dataavailable = false;
+        if (avail)
+        {
+            *dataAvailability = DataAvailability::notChecked();
+        }
+        else
+        {
+            *dataAvailability = DataAvailability::notAvailable();
+        }
 	}	
 	
 	MAINMUTEX_UNLOCK

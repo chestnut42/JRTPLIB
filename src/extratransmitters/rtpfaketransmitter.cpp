@@ -427,7 +427,7 @@ bool RTPFakeTransmitter::ComesFromThisTransmitter(const RTPAddress *addr)
 	return v;
 }
 
-int RTPFakeTransmitter::Poll()
+int RTPFakeTransmitter::Poll(DataAvailability dataAvailability)
 {
 	if (!init)
 		return ERR_RTP_FAKETRANS_NOTINIT;
@@ -446,7 +446,7 @@ int RTPFakeTransmitter::Poll()
 	return status;
 }
 
-int RTPFakeTransmitter::WaitForIncomingData(const RTPTime &, bool *)
+int RTPFakeTransmitter::WaitForIncomingData(const RTPTime &, DataAvailability *dataAvailability)
 {
 	return ERR_RTP_FAKETRANS_WAITNOTIMPLEMENTED;
 }

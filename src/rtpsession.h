@@ -49,6 +49,7 @@
 #include "rtptimeutilities.h"
 #include "rtcpcompoundpacketbuilder.h"
 #include "rtpmemoryobject.h"
+#include "rtptransmitter.h"
 #include <list>
 
 #ifdef RTP_SUPPORT_THREAD
@@ -259,7 +260,7 @@ public:
 	 *  using the poll thread. If \c dataavailable is not \c NULL, it should be set to \c true if data 
 	 *  was actually read and to \c false otherwise.
 	 */
-	int WaitForIncomingData(const RTPTime &delay,bool *dataavailable = 0);
+    int WaitForIncomingData(const RTPTime &delay, RTPTransmitter::DataAvailability *dataAvailability);
 
 	/** If the previous function has been called, this one aborts the waiting (only works when you're not 
 	 *  using the poll thread).

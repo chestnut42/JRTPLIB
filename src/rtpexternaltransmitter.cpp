@@ -260,12 +260,12 @@ bool RTPExternalTransmitter::ComesFromThisTransmitter(const RTPAddress *addr)
 	return value;
 }
 
-int RTPExternalTransmitter::Poll()
+int RTPExternalTransmitter::Poll(DataAvailability dataAvailability)
 {
 	return 0;
 }
 
-int RTPExternalTransmitter::WaitForIncomingData(const RTPTime &delay,bool *dataavailable)
+int RTPExternalTransmitter::WaitForIncomingData(const RTPTime &delay, DataAvailability *dataAvailability)
 {
 	if (!init)
 		return ERR_RTP_EXTERNALTRANS_NOTINIT;
@@ -287,8 +287,10 @@ int RTPExternalTransmitter::WaitForIncomingData(const RTPTime &delay,bool *dataa
 
 	if (!rawpacketlist.empty())
 	{
-		if (dataavailable != 0)
-			*dataavailable = true;
+		if (dataAvailability != nullptr)
+        {
+            *dataAvailability = DataAvailability::notChecked();
+        }
 		waitingfordata = false;
 		MAINMUTEX_UNLOCK
 		return 0;
@@ -322,12 +324,12 @@ int RTPExternalTransmitter::WaitForIncomingData(const RTPTime &delay,bool *dataa
 	if (isset)
 		m_abortDesc.ClearAbortSignal();
 
-	if (dataavailable != 0)
+	if (dataAvailability != nullptr)
 	{
 		if (rawpacketlist.empty())
-			*dataavailable = false;
+            *dataAvailability = DataAvailability::notAvailable();
 		else
-			*dataavailable = true;
+            *dataAvailability = DataAvailability::notChecked();
 	}	
 	
 	MAINMUTEX_UNLOCK

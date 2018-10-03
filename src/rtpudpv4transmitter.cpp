@@ -790,7 +790,7 @@ bool RTPUDPv4Transmitter::ComesFromThisTransmitter(const RTPAddress *addr)
 	return v;
 }
 
-int RTPUDPv4Transmitter::Poll()
+int RTPUDPv4Transmitter::Poll(DataAvailability dataAvailability)
 {
 	if (!init)
 		return ERR_RTP_UDPV4TRANS_NOTINIT;
@@ -803,17 +803,17 @@ int RTPUDPv4Transmitter::Poll()
 		MAINMUTEX_UNLOCK
 		return ERR_RTP_UDPV4TRANS_NOTCREATED;
 	}
-	status = PollSocket(true); // poll RTP socket
+	status = PollSocket(true, dataAvailability.rtpDataStatus); // poll RTP socket
 	if (rtpsock != rtcpsock) // no need to poll twice when multiplexing
 	{
 		if (status >= 0)
-			status = PollSocket(false); // poll RTCP socket
+			status = PollSocket(false, dataAvailability.rtcpDataStatus); // poll RTCP socket
 	}
 	MAINMUTEX_UNLOCK
 	return status;
 }
 
-int RTPUDPv4Transmitter::WaitForIncomingData(const RTPTime &delay,bool *dataavailable)
+int RTPUDPv4Transmitter::WaitForIncomingData(const RTPTime &delay, DataAvailability *dataAvailability)
 {
 	if (!init)
 		return ERR_RTP_UDPV4TRANS_NOTINIT;
@@ -867,13 +867,21 @@ int RTPUDPv4Transmitter::WaitForIncomingData(const RTPTime &delay,bool *dataavai
 	if (readflags[idxAbort])
 		m_pAbortDesc->ReadSignallingByte();
 
-	if (dataavailable != 0)
-	{
-		if (readflags[idxRTP] || readflags[idxRTCP])
-			*dataavailable = true;
-		else
-			*dataavailable = false;
-	}	
+    if (dataAvailability != nullptr)
+    {
+        dataAvailability->rtpDataStatus = DataAvailability::Status::NotAvailable;
+        dataAvailability->rtcpDataStatus = DataAvailability::Status::NotAvailable;
+        
+        if (readflags[idxRTP])
+        {
+            dataAvailability->rtpDataStatus = DataAvailability::Status::Available;
+        }
+        
+        if (readflags[idxRTCP])
+        {
+            dataAvailability->rtcpDataStatus = DataAvailability::Status::Available;
+        }
+    }
 	
 	MAINMUTEX_UNLOCK
 	WAITMUTEX_UNLOCK
@@ -1460,7 +1468,7 @@ void RTPUDPv4Transmitter::FlushPackets()
 	rawpacketlist.clear();
 }
 
-int RTPUDPv4Transmitter::PollSocket(bool rtp)
+int RTPUDPv4Transmitter::PollSocket(bool rtp, DataAvailability::Status availabilityStatus)
 {
 	RTPSOCKLENTYPE fromlen;
 	int recvlen;
@@ -1473,7 +1481,7 @@ int RTPUDPv4Transmitter::PollSocket(bool rtp)
 	int sock;
 #endif // RTP_SOCKETTYPE_WINSOCK
 	struct sockaddr_in srcaddr;
-	bool dataavailable;
+    DataAvailability::Status dataavailable = availabilityStatus;
 	
 	if (rtp)
 		sock = rtpsock;
@@ -1482,34 +1490,38 @@ int RTPUDPv4Transmitter::PollSocket(bool rtp)
 	
 	do
 	{
-		len = 0;
-		RTPIOCTL(sock,FIONREAD,&len);
+        if (dataavailable == DataAvailability::Status::NotChecked)
+        {
+            len = 0;
+            RTPIOCTL(sock,FIONREAD,&len);
 
-		if (len <= 0) // make sure a packet of length zero is not queued
-		{
-			// An alternative workaround would be to just use non-blocking sockets.
-			// However, since the user does have access to the sockets and I do not
-			// know how this would affect anyone else's code, I chose to do it using
-			// an extra select call in case ioctl says the length is zero.
-			
-			int8_t isset = 0;
-			int status = RTPSelect(&sock, &isset, 1, RTPTime(0));
-			if (status < 0)
-				return status;
+            if (len <= 0) // make sure a packet of length zero is not queued
+            {
+                // An alternative workaround would be to just use non-blocking sockets.
+                // However, since the user does have access to the sockets and I do not
+                // know how this would affect anyone else's code, I chose to do it using
+                // an extra select call in case ioctl says the length is zero.
+                
+                int8_t isset = 0;
+                int status = RTPSelect(&sock, &isset, 1, RTPTime(0));
+                if (status < 0)
+                    return status;
 
-			if (isset)
-				dataavailable = true;
-			else
-				dataavailable = false;
-		}
-		else
-			dataavailable = true;
+                if (isset)
+                    dataavailable = DataAvailability::Status::Available;
+                else
+                    dataavailable = DataAvailability::Status::NotAvailable;
+            }
+            else
+                dataavailable = DataAvailability::Status::Available;
+        }
 		
-		if (dataavailable)
+        if (dataavailable == DataAvailability::Status::Available)
 		{
 			RTPTime curtime = RTPTime::CurrentTime();
 			fromlen = sizeof(struct sockaddr_in);
 			recvlen = recvfrom(sock,packetbuffer,RTPUDPV4TRANS_MAXPACKSIZE,0,(struct sockaddr *)&srcaddr,&fromlen);
+            dataavailable = DataAvailability::Status::NotChecked;
 			if (recvlen > 0)
 			{
 				bool acceptdata;
@@ -1563,7 +1575,7 @@ int RTPUDPv4Transmitter::PollSocket(bool rtp)
 				}
 			}
 		}
-	} while (dataavailable);
+    } while (dataavailable != DataAvailability::NotAvailable);
 
 	return 0;
 }

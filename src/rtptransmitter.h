@@ -83,6 +83,39 @@ public:
 		AcceptSome, /**< Only data coming from specific sources will be accepted. */
 		IgnoreSome /**< All incoming data is accepted, except for data coming from a specific set of sources. */
 	};
+    
+    /** The kind of data availability status */
+    struct DataAvailability
+    {
+        enum Status
+        {
+            NotAvailable,
+            Available,
+            NotChecked
+        };
+        
+        Status rtpDataStatus;
+        Status rtcpDataStatus;
+        
+        
+        static DataAvailability notChecked()
+        {
+            return DataAvailability(NotChecked, NotChecked);
+        }
+        
+        
+        static DataAvailability notAvailable()
+        {
+            return DataAvailability(NotAvailable, NotAvailable);
+        }
+        
+        
+        DataAvailability(Status rtpStatus, Status rtcpStatus):
+            rtpDataStatus(rtpStatus),
+            rtcpDataStatus(rtcpStatus)
+        {}
+    };
+    
 protected:
 	/** Constructor in which you can specify a memory manager to use. */
 	RTPTransmitter(RTPMemoryManager *mgr) : RTPMemoryObject(mgr)									{ timeinit.Dummy(); }
@@ -143,13 +176,13 @@ public:
 	virtual size_t GetHeaderOverhead() = 0;
 	
 	/** Checks for incoming data and stores it. */
-	virtual int Poll() = 0;
+	virtual int Poll(DataAvailability dataAvailability) = 0;
 
 	/** Waits until incoming data is detected.
 	 *  Waits at most a time \c delay until incoming data has been detected. If \c dataavailable is not NULL, 
 	 *  it should be set to \c true if data was actually read and to \c false otherwise.
 	 */
-	virtual int WaitForIncomingData(const RTPTime &delay,bool *dataavailable = 0) = 0;
+	virtual int WaitForIncomingData(const RTPTime &delay, DataAvailability *dataAvailability) = 0;
 
 	/** If the previous function has been called, this one aborts the waiting. */
 	virtual int AbortWait() = 0;

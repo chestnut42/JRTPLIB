@@ -1004,18 +1004,18 @@ int RTPSession::Poll()
 		return ERR_RTP_SESSION_NOTCREATED;
 	if (usingpollthread)
 		return ERR_RTP_SESSION_USINGPOLLTHREAD;
-	if ((status = rtptrans->Poll()) < 0)
+    if ((status = rtptrans->Poll(RTPTransmitter::DataAvailability::notChecked())) < 0)
 		return status;
 	return ProcessPolledData();
 }
 
-int RTPSession::WaitForIncomingData(const RTPTime &delay,bool *dataavailable)
+int RTPSession::WaitForIncomingData(const RTPTime &delay, RTPTransmitter::DataAvailability *dataAvailability)
 {
 	if (!created)
 		return ERR_RTP_SESSION_NOTCREATED;
 	if (usingpollthread)
 		return ERR_RTP_SESSION_USINGPOLLTHREAD;
-	return rtptrans->WaitForIncomingData(delay,dataavailable);
+	return rtptrans->WaitForIncomingData(delay, dataAvailability);
 }
 
 int RTPSession::AbortWait()

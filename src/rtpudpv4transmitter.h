@@ -270,8 +270,8 @@ public:
 	bool ComesFromThisTransmitter(const RTPAddress *addr);
 	size_t GetHeaderOverhead()							{ return RTPUDPV4TRANS_HEADERSIZE; }
 	
-	int Poll();
-	int WaitForIncomingData(const RTPTime &delay,bool *dataavailable = 0);
+	int Poll(DataAvailability dataAvailability);
+	int WaitForIncomingData(const RTPTime &delay, DataAvailability *dataAvailability);
 	int AbortWait();
 	
 	int SendRTPData(const void *data,size_t len);	
@@ -306,7 +306,7 @@ private:
 	void GetLocalIPList_DNS();
 	void AddLoopbackAddress();
 	void FlushPackets();
-	int PollSocket(bool rtp);
+    int PollSocket(bool rtp, DataAvailability::Status availabilityStatus);
 	int ProcessAddAcceptIgnoreEntry(uint32_t ip,uint16_t port);
 	int ProcessDeleteAcceptIgnoreEntry(uint32_t ip,uint16_t port);
 #ifdef RTP_SUPPORT_IPV4MULTICAST

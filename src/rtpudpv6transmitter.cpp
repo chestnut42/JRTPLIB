@@ -575,7 +575,7 @@ bool RTPUDPv6Transmitter::ComesFromThisTransmitter(const RTPAddress *addr)
 	return v;
 }
 
-int RTPUDPv6Transmitter::Poll()
+int RTPUDPv6Transmitter::Poll(DataAvailability dataAvailability)
 {
 	if (!init)
 		return ERR_RTP_UDPV6TRANS_NOTINIT;
@@ -595,7 +595,7 @@ int RTPUDPv6Transmitter::Poll()
 	return status;
 }
 
-int RTPUDPv6Transmitter::WaitForIncomingData(const RTPTime &delay,bool *dataavailable)
+int RTPUDPv6Transmitter::WaitForIncomingData(const RTPTime &delay, DataAvailability *dataAvailability)
 {
 	if (!init)
 		return ERR_RTP_UDPV6TRANS_NOTINIT;
@@ -648,13 +648,21 @@ int RTPUDPv6Transmitter::WaitForIncomingData(const RTPTime &delay,bool *dataavai
 	if (readflags[idxAbort])
 		m_pAbortDesc->ReadSignallingByte();
 	
-	if (dataavailable != 0)
+	if (dataAvailability != nullptr)
 	{
-		if (readflags[idxRTP] || readflags[idxRTCP])
-			*dataavailable = true;
-		else
-			*dataavailable = false;
-	}	
+        dataAvailability->rtpDataStatus = DataAvailability::Status::NotAvailable;
+        dataAvailability->rtcpDataStatus = DataAvailability::Status::NotAvailable;
+        
+        if (readflags[idxRTP])
+        {
+            dataAvailability->rtpDataStatus = DataAvailability::Status::Available;
+        }
+        
+        if (readflags[idxRTCP])
+        {
+            dataAvailability->rtcpDataStatus = DataAvailability::Status::Available;
+        }
+    }
 
 	MAINMUTEX_UNLOCK
 	WAITMUTEX_UNLOCK
