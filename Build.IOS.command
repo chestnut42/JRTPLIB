@@ -497,6 +497,7 @@ EOF
 		-DCMAKE_TOOLCHAIN_FILE="$path_toolchain" \
 		-DIOS_PLATFORM="$1" \
     -DENABLE_VISIBILITY=YES \
+    -DJRTPLIB_USE_BIGENDIAN=NO \
     -DJTHREAD_FIND_PATH="$path_jthread" \
 		-DCMAKE_INSTALL_PREFIX="$path_install" \
 		-DCMAKE_BUILD_TYPE=Release

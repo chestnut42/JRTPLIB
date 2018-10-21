@@ -53,7 +53,7 @@
 
 #define RTP_HAVE_SYS_SOCKIO
 
-#define RTP_BIG_ENDIAN
+// Little endian system
 
 #define RTP_SOCKLENTYPE_UINT
 
