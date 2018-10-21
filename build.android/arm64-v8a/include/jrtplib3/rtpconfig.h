@@ -53,7 +53,7 @@
 
 // Don't have <sys/sockio.h>
 
-#define RTP_BIG_ENDIAN
+// Little endian system
 
 #define RTP_SOCKLENTYPE_UINT
 
