@@ -48,7 +48,7 @@ build_library() {
 	then
 		cd "$path_lib"
 		find . ! -name "*.so" ! -name "*.a" -delete
-	else
+	fi
 }
 
 build_library "armeabi-v7a"

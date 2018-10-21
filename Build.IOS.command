@@ -513,7 +513,7 @@ EOF
   then
     cd "$path_lib"
     find . ! -name "*.dylib" ! -name "*.a" -delete
-  else
+  fi
 }
 
 build_xcode "OS"
