@@ -496,6 +496,7 @@ EOF
 	cmake "../../.." \
 		-DCMAKE_TOOLCHAIN_FILE="$path_toolchain" \
 		-DIOS_PLATFORM="$1" \
+    -DENABLE_VISIBILITY=YES \
     -DJTHREAD_FIND_PATH="$path_jthread" \
 		-DCMAKE_INSTALL_PREFIX="$path_install" \
 		-DCMAKE_BUILD_TYPE=Release
