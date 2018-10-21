@@ -14,7 +14,7 @@ build_library() {
 	path_install="$path_build/$1"
 	path_temp="$path_install/temp"
 
-	path_jthread="$path/android/jthread/$1"
+	path_jthread="$path/android/$1"
 
 	# cleanup install
 	rm -rf "$path_install"
@@ -32,7 +32,7 @@ build_library() {
 		-DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
 		-DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
 		-DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
-		-DCMAKE_FIND_ROOT_PATH="$path_install;$path_jthread" \
+		-DCMAKE_FIND_ROOT_PATH="$path_jthread" \
 		-DCMAKE_INSTALL_PREFIX="$path_install" \
 		-DCMAKE_BUILD_TYPE=Release 
 	make -j8

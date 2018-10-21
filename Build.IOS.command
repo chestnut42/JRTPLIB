@@ -485,10 +485,9 @@ macro(find_host_package)
 endmacro(find_host_package)
 EOF
 
-  # path_jthread="$path/ios/lib"
   path_jthread="$path/ios"
 
-cat << EOF >> "$path_toolchain"
+cat << 'EOF' >> "$path_toolchain"
 set(CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH} ${JTHREAD_FIND_PATH})
 EOF
 
